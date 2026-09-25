@@ -67,4 +67,88 @@ describe("CronogramaTable", () => {
     const { container } = setup();
     expect(await axe(container)).toHaveNoViolations();
   });
+
+  it("excludes the day's celebrant from a reader's edit options", () => {
+    render(
+      <CronogramaTable
+        cronograma={[{ data: "2026-03-01", leitores: ["Ana", "Beto"], ministros: ["Duda"], responsavel: "Cris" }]}
+        editando={{ data: "2026-03-01", tipo: "leitor", idx: 0 }}
+        setEditando={vi.fn()}
+        atualizarCelula={vi.fn()}
+        leitores={["Ana", "Beto", "Cris"]}
+        ministros={["Duda", "Elo"]}
+        responsaveis={["Cris", "Padre João"]}
+      />
+    );
+    const select = screen.getByRole("combobox");
+    const options = Array.from(select.options).map((o) => o.value);
+    expect(options).not.toContain("Cris");
+  });
+
+  it("excludes the day's readers from the celebrant's edit options", () => {
+    render(
+      <CronogramaTable
+        cronograma={[{ data: "2026-03-01", leitores: ["Ana", "Beto"], ministros: ["Duda"], responsavel: "Padre Carlos" }]}
+        editando={{ data: "2026-03-01", tipo: "celebrante" }}
+        setEditando={vi.fn()}
+        atualizarCelula={vi.fn()}
+        leitores={["Ana", "Beto", "Cris"]}
+        ministros={["Duda", "Elo"]}
+        responsaveis={["Padre Carlos", "Ana"]}
+      />
+    );
+    const select = screen.getByRole("combobox");
+    const options = Array.from(select.options).map((o) => o.value);
+    expect(options).not.toContain("Ana");
+  });
+
+  it("returns focus to the cell button after cancelling an edit (blur without a change)", () => {
+    const cronograma = [
+      { data: "2026-03-01", leitores: ["Ana", "Beto"], ministros: ["Duda"], responsavel: "Padre Carlos" },
+    ];
+    const commonProps = {
+      cronograma,
+      atualizarCelula: vi.fn(),
+      leitores: ["Ana", "Beto", "Cris"],
+      ministros: ["Duda", "Elo"],
+      responsaveis: ["Padre Carlos", "Padre João"],
+    };
+    const { rerender } = render(<CronogramaTable {...commonProps} editando={null} setEditando={vi.fn()} />);
+
+    rerender(<CronogramaTable {...commonProps} editando={{ data: "2026-03-01", tipo: "leitor", idx: 0 }} setEditando={vi.fn()} />);
+    expect(screen.getByRole("combobox")).toHaveFocus();
+
+    // Simulates onBlur -> onCancelar -> setEditando(null) with no value change.
+    rerender(<CronogramaTable {...commonProps} editando={null} setEditando={vi.fn()} />);
+    expect(screen.getByRole("button", { name: "Ana" })).toHaveFocus();
+  });
+
+  it("returns focus to the cell button after committing a new value", () => {
+    const commonProps = {
+      atualizarCelula: vi.fn(),
+      leitores: ["Ana", "Beto", "Cris"],
+      ministros: ["Duda", "Elo"],
+      responsaveis: ["Padre Carlos", "Padre João"],
+    };
+    const { rerender } = render(
+      <CronogramaTable
+        {...commonProps}
+        cronograma={[{ data: "2026-03-01", leitores: ["Ana", "Beto"], ministros: ["Duda"], responsavel: "Padre Carlos" }]}
+        editando={{ data: "2026-03-01", tipo: "leitor", idx: 0 }}
+        setEditando={vi.fn()}
+      />
+    );
+    expect(screen.getByRole("combobox")).toHaveFocus();
+
+    // Simulates onChange -> atualizarCelula (parent updates cronograma) -> onConfirmar -> setEditando(null).
+    rerender(
+      <CronogramaTable
+        {...commonProps}
+        cronograma={[{ data: "2026-03-01", leitores: ["Cris", "Beto"], ministros: ["Duda"], responsavel: "Padre Carlos" }]}
+        editando={null}
+        setEditando={vi.fn()}
+      />
+    );
+    expect(screen.getByRole("button", { name: "Cris" })).toHaveFocus();
+  });
 });

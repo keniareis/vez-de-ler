@@ -57,7 +57,8 @@ export function montarCronograma({ datas, leitores, ministros, responsaveis, lei
     const responsavel = pickResponsavel(null);
 
     const usadosLeitores = new Set([responsavel]);
-    const numLeitores = Math.min(leitoresPorCel, leitores.length);
+    const leitoresDisponiveis = leitores.filter((n) => n !== responsavel).length;
+    const numLeitores = Math.min(leitoresPorCel, leitoresDisponiveis);
     const leitoresDoDia = [];
     for (let i = 0; i < numLeitores; i++) {
       const nome = pickLeitor(usadosLeitores);

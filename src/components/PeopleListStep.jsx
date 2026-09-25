@@ -1,7 +1,7 @@
 import StepCard from "./StepCard.jsx";
 
 export default function PeopleListStep({
-  numero, titulo, corChip,
+  numero, titulo, corChip, singular,
   campoId, rotuloCampo, placeholder, valorCampo, onValorCampoChange, onAdicionar,
   lista, onRemover,
   rotuloPorCelebracao, valorPorCelebracao, onValorPorCelebracaoChange,
@@ -15,7 +15,8 @@ export default function PeopleListStep({
             id={`${campoId}-por-cel`}
             type="number" min="1" max="6"
             value={valorPorCelebracao}
-            onChange={(e) => onValorPorCelebracaoChange(Math.max(1, Number(e.target.value)))}
+            onChange={(e) => onValorPorCelebracaoChange(e.target.value === "" ? "" : Number(e.target.value))}
+            onBlur={(e) => onValorPorCelebracaoChange(Math.min(6, Math.max(1, Number(e.target.value) || 1)))}
           />
         </>
       )}
@@ -43,7 +44,7 @@ export default function PeopleListStep({
           ))}
         </ul>
       ) : (
-        <div className="empty-hint">Nenhum {titulo.toLowerCase().replace(/s$/, "")} adicionado ainda.</div>
+        <div className="empty-hint">Nenhum {singular} adicionado ainda.</div>
       )}
     </StepCard>
   );

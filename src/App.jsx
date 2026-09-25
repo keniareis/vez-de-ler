@@ -28,69 +28,73 @@ export default function App() {
       ano: escala.ano,
       logoImage,
     });
-    doc.save(`cronograma_${MESES[escala.mes].toLowerCase()}_${escala.ano}.pdf`);
+    const nomeArquivo = `cronograma_${MESES[escala.mes].toLowerCase()}_${escala.ano}.pdf`;
+    doc.save(nomeArquivo);
+    escala.anunciar(`PDF gerado: ${nomeArquivo}`);
   }
 
   return (
     <div className="wrap">
       <Masthead />
-      <LiveAnnouncer mensagem={escala.mensagem} />
+      <LiveAnnouncer mensagem={escala.mensagem} mensagemId={escala.mensagemId} />
 
-      <DatasStep
-        igreja={escala.igreja} setIgreja={escala.setIgreja}
-        mes={escala.mes} setMes={escala.setMes}
-        ano={escala.ano} setAno={escala.setAno}
-        diasSelecionados={escala.diasSelecionados} toggleDia={escala.toggleDia}
-        datas={escala.datas} novaData={escala.novaData} setNovaData={escala.setNovaData}
-        gerarDatasDoMes={escala.gerarDatasDoMes} removerData={escala.removerData}
-        adicionarDataManual={escala.adicionarDataManual}
-      />
+      <main>
+        <DatasStep
+          igreja={escala.igreja} setIgreja={escala.setIgreja}
+          mes={escala.mes} setMes={escala.setMes}
+          ano={escala.ano} setAno={escala.setAno}
+          diasSelecionados={escala.diasSelecionados} toggleDia={escala.toggleDia}
+          datas={escala.datas} novaData={escala.novaData} setNovaData={escala.setNovaData}
+          gerarDatasDoMes={escala.gerarDatasDoMes} removerData={escala.removerData}
+          adicionarDataManual={escala.adicionarDataManual}
+        />
 
-      <PeopleListStep
-        numero={2} titulo="Leitores" corChip="chip-blue"
-        campoId="novo-leitor" rotuloCampo="Adicionar leitor" placeholder="Nome do leitor"
-        valorCampo={escala.novoLeitor} onValorCampoChange={escala.setNovoLeitor} onAdicionar={escala.adicionarLeitor}
-        lista={escala.leitores} onRemover={escala.removerLeitor}
-        rotuloPorCelebracao="Leitor(es) por celebração"
-        valorPorCelebracao={escala.leitoresPorCel} onValorPorCelebracaoChange={escala.setLeitoresPorCel}
-      />
+        <PeopleListStep
+          numero={2} titulo="Leitores" corChip="chip-blue" singular="leitor"
+          campoId="novo-leitor" rotuloCampo="Adicionar leitor" placeholder="Nome do leitor"
+          valorCampo={escala.novoLeitor} onValorCampoChange={escala.setNovoLeitor} onAdicionar={escala.adicionarLeitor}
+          lista={escala.leitores} onRemover={escala.removerLeitor}
+          rotuloPorCelebracao="Leitor(es) por celebração"
+          valorPorCelebracao={escala.leitoresPorCel} onValorPorCelebracaoChange={escala.setLeitoresPorCel}
+        />
 
-      <PeopleListStep
-        numero={3} titulo="Ministros" corChip="chip-green"
-        campoId="novo-ministro" rotuloCampo="Adicionar ministro" placeholder="Nome do ministro"
-        valorCampo={escala.novoMinistro} onValorCampoChange={escala.setNovoMinistro} onAdicionar={escala.adicionarMinistro}
-        lista={escala.ministros} onRemover={escala.removerMinistro}
-        rotuloPorCelebracao="Ministro(s) por celebração"
-        valorPorCelebracao={escala.ministrosPorCel} onValorPorCelebracaoChange={escala.setMinistrosPorCel}
-      />
+        <PeopleListStep
+          numero={3} titulo="Ministros" corChip="chip-green" singular="ministro"
+          campoId="novo-ministro" rotuloCampo="Adicionar ministro" placeholder="Nome do ministro"
+          valorCampo={escala.novoMinistro} onValorCampoChange={escala.setNovoMinistro} onAdicionar={escala.adicionarMinistro}
+          lista={escala.ministros} onRemover={escala.removerMinistro}
+          rotuloPorCelebracao="Ministro(s) por celebração"
+          valorPorCelebracao={escala.ministrosPorCel} onValorPorCelebracaoChange={escala.setMinistrosPorCel}
+        />
 
-      <PeopleListStep
-        numero={4} titulo="Celebrantes" corChip="chip-gold"
-        campoId="novo-celebrante" rotuloCampo="Adicionar celebrante" placeholder="Ex.: Pe. Carlos"
-        valorCampo={escala.novoResponsavel} onValorCampoChange={escala.setNovoResponsavel} onAdicionar={escala.adicionarResponsavel}
-        lista={escala.responsaveis} onRemover={escala.removerResponsavel}
-      />
+        <PeopleListStep
+          numero={4} titulo="Celebrantes" corChip="chip-gold" singular="celebrante"
+          campoId="novo-celebrante" rotuloCampo="Adicionar celebrante" placeholder="Ex.: Pe. Carlos"
+          valorCampo={escala.novoResponsavel} onValorCampoChange={escala.setNovoResponsavel} onAdicionar={escala.adicionarResponsavel}
+          lista={escala.responsaveis} onRemover={escala.removerResponsavel}
+        />
 
-      <SorteioButton podeSortear={escala.podeSortear} onSortear={escala.sortear} />
+        <SorteioButton podeSortear={escala.podeSortear} onSortear={escala.sortear} />
 
-      {escala.cronograma && (
-        <StepCard numero={5} titulo="Cronograma sorteado" as="section">
-          <CronogramaTable
-            cronograma={escala.cronograma}
-            editando={escala.editando}
-            setEditando={escala.setEditando}
-            atualizarCelula={escala.atualizarCelula}
-            leitores={escala.leitores}
-            ministros={escala.ministros}
-            responsaveis={escala.responsaveis}
-          />
-          <div className="edit-hint">Toque em um nome para trocá-lo sem precisar sortear tudo de novo.</div>
-          <div className="actions-row">
-            <button className="secondary" type="button" onClick={escala.sortear}>Sortear novamente</button>
-            <button className="primary" type="button" style={{ marginTop: 0 }} onClick={baixarPDF}>Baixar PDF</button>
-          </div>
-        </StepCard>
-      )}
+        {escala.cronograma && (
+          <StepCard numero={5} titulo="Cronograma sorteado" as="section">
+            <CronogramaTable
+              cronograma={escala.cronograma}
+              editando={escala.editando}
+              setEditando={escala.setEditando}
+              atualizarCelula={escala.atualizarCelula}
+              leitores={escala.leitores}
+              ministros={escala.ministros}
+              responsaveis={escala.responsaveis}
+            />
+            <div className="edit-hint">Toque em um nome para trocá-lo sem precisar sortear tudo de novo.</div>
+            <div className="actions-row">
+              <button className="secondary" type="button" onClick={escala.sortear}>Sortear novamente</button>
+              <button className="primary" type="button" style={{ marginTop: 0 }} onClick={baixarPDF}>Baixar PDF</button>
+            </div>
+          </StepCard>
+        )}
+      </main>
     </div>
   );
 }

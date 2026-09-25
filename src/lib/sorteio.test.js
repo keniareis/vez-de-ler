@@ -62,4 +62,25 @@ describe("montarCronograma", () => {
       montarCronograma({ ...base, leitores: ["Ana"], leitoresPorCel: 5 })
     ).not.toThrow();
   });
+
+  it("never schedules the day's celebrant as a reader even when the reader pool barely covers leitoresPorCel without them", () => {
+    // Only "Maria" is left once "Pe. João" (the only possible celebrant) is excluded,
+    // but leitoresPorCel asks for 2 — there is no valid way to pick 2 distinct
+    // non-celebrant readers, so the day should fall back to just the 1 available
+    // reader rather than ever reusing the celebrant.
+    const cenario = {
+      datas: ["2026-03-01", "2026-03-08", "2026-03-15", "2026-03-22"],
+      leitores: ["Maria", "Pe. João"],
+      ministros: ["Duda"],
+      responsaveis: ["Pe. João"],
+      leitoresPorCel: 2,
+      ministrosPorCel: 1,
+    };
+    for (let i = 0; i < 50; i++) {
+      const linhas = montarCronograma(cenario);
+      linhas.forEach((linha) => {
+        expect(linha.leitores).not.toContain(linha.responsavel);
+      });
+    }
+  });
 });

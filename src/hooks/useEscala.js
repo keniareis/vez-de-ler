@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { datasDoMes } from "../lib/dates.js";
+import { datasDoMes, formatDateBR } from "../lib/dates.js";
 import { montarCronograma } from "../lib/sorteio.js";
 
 function adicionarNomeEm(lista, setLista, campo, setCampo) {
@@ -28,6 +28,12 @@ export function useEscala() {
   const [cronograma, setCronograma] = useState(null);
   const [editando, setEditando] = useState(null);
   const [mensagem, setMensagem] = useState("");
+  const [mensagemId, setMensagemId] = useState(0);
+
+  function anunciar(texto) {
+    setMensagem(texto);
+    setMensagemId((id) => id + 1);
+  }
 
   function toggleDia(i) {
     const s = new Set(diasSelecionados);
@@ -82,7 +88,7 @@ export function useEscala() {
     const linhas = montarCronograma({ datas, leitores, ministros, responsaveis, leitoresPorCel, ministrosPorCel });
     setCronograma(linhas);
     setEditando(null);
-    setMensagem(`Cronograma sorteado com ${linhas.length} celebraç${linhas.length === 1 ? "ão" : "ões"}.`);
+    anunciar(`Cronograma sorteado com ${linhas.length} celebraç${linhas.length === 1 ? "ão" : "ões"}.`);
   }
 
   function atualizarCelula(dataIso, tipo, novoValor, idx) {
@@ -105,7 +111,7 @@ export function useEscala() {
     );
     setEditando(null);
     const rotulo = tipo === "celebrante" ? "celebrante" : tipo;
-    setMensagem(`${novoValor} definido como ${rotulo} em ${dataIso}.`);
+    anunciar(`${novoValor} definido como ${rotulo} em ${formatDateBR(dataIso)}.`);
   }
 
   return {
@@ -117,6 +123,6 @@ export function useEscala() {
     novoLeitor, setNovoLeitor, novoMinistro, setNovoMinistro, novoResponsavel, setNovoResponsavel,
     adicionarLeitor, removerLeitor, adicionarMinistro, removerMinistro, adicionarResponsavel, removerResponsavel,
     podeSortear, cronograma, sortear, editando, setEditando, atualizarCelula,
-    mensagem,
+    mensagem, mensagemId, anunciar,
   };
 }

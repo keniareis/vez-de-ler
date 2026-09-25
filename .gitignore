@@ -1,2 +1,5 @@
 node_modules
 dist
+# jsPDF's doc.save() writes to disk when run under Node/jsdom (e.g. the
+# App.test.jsx PDF-download test) instead of triggering a browser download.
+*.pdf

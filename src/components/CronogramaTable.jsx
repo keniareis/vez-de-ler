@@ -25,7 +25,7 @@ export default function CronogramaTable({ cronograma, editando, setEditando, atu
               <td>
                 {linha.leitores.map((nome, idx) => {
                   const aEditar = editando && editando.data === linha.data && editando.tipo === "leitor" && editando.idx === idx;
-                  const opcoes = leitores.filter((n) => n === nome || !linha.leitores.includes(n));
+                  const opcoes = leitores.filter((n) => n === nome || (!linha.leitores.includes(n) && n !== linha.responsavel));
                   return (
                     <span key={idx}>
                       <EditableCell
@@ -67,7 +67,7 @@ export default function CronogramaTable({ cronograma, editando, setEditando, atu
               <td>
                 <EditableCell
                   valor={linha.responsavel}
-                  opcoes={responsaveis}
+                  opcoes={responsaveis.filter((n) => n === linha.responsavel || !linha.leitores.includes(n))}
                   emEdicao={editando && editando.data === linha.data && editando.tipo === "celebrante"}
                   rotulo={`Celebrante em ${formatDateBR(linha.data)}`}
                   onIniciarEdicao={() => setEditando({ data: linha.data, tipo: "celebrante" })}

@@ -23,11 +23,12 @@ export function gerarPDF({ cronograma, igreja, mes, ano, logoImage }) {
   const COL_GOLD = [245, 168, 28];
   const COL_BLUE = [0, 134, 195];
   const COL_BLUE_DARK = [0, 102, 154];
-  const COL_GREEN = [46, 125, 50];
+  const COL_GREEN_TEXT = [46, 125, 50]; // contrast-fixed dark green, for text only (see ACCESSIBILITY_SPEC.md §7)
+  const COL_GREEN_BRAND = [82, 185, 71]; // PASCOM brand green, for the decorative stripe (no text-contrast reason to change it)
   const COL_PAPER = [247, 250, 252];
   const COL_ZEBRA = [235, 246, 251];
 
-  function paginaBase(pageNum) {
+  function paginaBase() {
     doc.setFillColor(...COL_PAPER);
     doc.rect(0, 0, pageW, pageH, "F");
     const stripeH = 3.2;
@@ -35,7 +36,7 @@ export function gerarPDF({ cronograma, igreja, mes, ano, logoImage }) {
     doc.rect(0, 0, pageW / 3, stripeH, "F");
     doc.setFillColor(...COL_BLUE);
     doc.rect(pageW / 3, 0, pageW / 3, stripeH, "F");
-    doc.setFillColor(...COL_GREEN);
+    doc.setFillColor(...COL_GREEN_BRAND);
     doc.rect((2 * pageW) / 3, 0, pageW / 3, stripeH, "F");
     doc.setDrawColor(220, 228, 235);
     doc.setLineWidth(0.5);
@@ -47,10 +48,11 @@ export function gerarPDF({ cronograma, igreja, mes, ano, logoImage }) {
       "Vez de Ler · PASCOM · Gerado em " + `${pad(today.getDate())}/${pad(today.getMonth() + 1)}/${today.getFullYear()}`,
       marginX, pageH - 10
     );
-    doc.text(`Página ${pageNum}`, tableRight, pageH - 10, { align: "right" });
+    // The final page-numbering pass below draws the definitive "Página N de M"
+    // once the total is known — drawing a page number here too would overlap it.
   }
 
-  paginaBase(1);
+  paginaBase();
   let y = 16;
 
   if (logoImage) {
@@ -66,7 +68,7 @@ export function gerarPDF({ cronograma, igreja, mes, ano, logoImage }) {
 
   doc.setFont("helvetica", "bold");
   doc.setFontSize(9.5);
-  doc.setTextColor(...COL_GREEN);
+  doc.setTextColor(...COL_GREEN_TEXT);
   doc.text("CRONOGRAMA MENSAL", pageW / 2, y, { align: "center", charSpace: 1.2 });
   y += 9;
 
@@ -125,7 +127,7 @@ export function gerarPDF({ cronograma, igreja, mes, ano, logoImage }) {
 
     if (y + alturaLinha > pageH - 20) {
       doc.addPage();
-      paginaBase(doc.internal.getNumberOfPages());
+      paginaBase();
       y = 24;
       cabecalhoTabela();
     }
